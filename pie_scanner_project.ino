@@ -19,11 +19,8 @@ void loop() {
   for (xpos = 0; xpos <= 180; xpos += 1) { // goes from 0 degrees to 180 degrees
     xservo.write(xpos);              // tell servo to go to position in variable 'pos'
     delay(50);                       // waits 15 ms for the servo to reach the position
-    Serial.print("xpos ");
-    Serial.println(xpos);
-    Serial.print(" distance: ");
-    Serial.print(read_distance());
-    Serial.println(" cm");
+    Serial.print(xpos);   Serial.print(",");
+    Serial.println(read_distance());
   }
   delay(50); // Wait a little for servo to reset
 }
