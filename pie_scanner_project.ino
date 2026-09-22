@@ -1,40 +1,80 @@
 #include <Servo.h>
-Servo xservo;
-Servo yservo;
+#include <math.h>
 
-const int sensorPin = A0; // Select the input pin for the sensor
-int xpos = 0;    // variable to store the horizontal servo position
-int ypos = 0;    // variable to store the vertical servo position
+Servo Xservo;
+Servo Yservo;
+
+const int sensorPin = A0;
+
+int x_pos = 0;
+int y_pos = 0;
 
 void setup() {
-  Serial.begin(9600); // Initialize serial communication at 9600 baud
-  xservo.attach(9);  // attaches the x servo on pin 9 to the Servo object
-  yservo.attach(10);  // attaches the y servo on pin 10 to the Servo object
-  xservo.write(xpos);  // Zero out x servo
-  yservo.write(ypos);  // Zero out y servo
-  delay(500);
+  Xservo.attach(9);
+  Yservo.attach(10);
+
+  Xservo.write(0);
+  Yservo.write(0);
+
+  Serial.begin(115200);
 }
 
 void loop() {
-  for (xpos = 0; xpos <= 180; xpos += 1) { // goes from 0 degrees to 180 degrees
-    xservo.write(xpos);              // tell servo to go to position in variable 'pos'
-    delay(50);                       // waits 15 ms for the servo to reach the position
-    Serial.print(xpos);   Serial.print(",");
-    Serial.println(read_distance());
-  }
-  delay(50); // Wait a little for servo to reset
-}
 
-int read_distance() {
-  float distance = 0;
-  for (int i = 1; i <= 5; i++) {
-    int rawValue = analogRead(sensorPin); // Read the raw analog value (0-1023)
-    float voltage = rawValue * (5.0 / 1023.0); // Convert raw value to voltage
-    // Approximate distance calculation based on GP2Y0A02YK0F datasheet characteristics
-    // Note: The output is non-linear; this formula provides a reasonable approximation for 20-150cm.
-    distance += 61.543 * pow(voltage, -1.106);
-    delay(15);
+  // X sweeps from 0 to 180
+  for (x_pos = 0; x_pos <= 180; x_pos += 1) {
+
+    Xservo.write(x_pos);
+
+    int rawValue = analogRead(sensorPin);
+    float voltage = rawValue * (5.0 / 1023.0);
+    float distance = 61.543 * pow(voltage, -1.106);
+
+    Serial.print("X: ");
+    Serial.print(x_pos);
+    Serial.print("  Y: ");
+    Serial.print(y_pos);
+    Serial.print("  Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+    delay(2);
   }
-  distance = distance / 5;
-  return distance;
+
+  // Y moves down 1 degree
+  y_pos += 1;
+  Yservo.write(y_pos);
+  delay(2);
+
+  // X sweeps from 180 back to 0
+  for (x_pos = 180; x_pos >= 0; x_pos -= 1) {
+
+    Xservo.write(x_pos);
+
+    int rawValue = analogRead(sensorPin);
+    float voltage = rawValue * (5.0 / 1023.0);
+    float distance = 61.543 * pow(voltage, -1.106);
+
+    Serial.print("X: ");
+    Serial.print(x_pos);
+    Serial.print("  Y: ");
+    Serial.print(y_pos);
+    Serial.print("  Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+    delay(2);
+  }
+
+  // Y moves down 1 degree
+  y_pos += 1;
+  Yservo.write(y_pos);
+  delay(2);
+
+  // Stop once Y reaches 180
+  if (y_pos >= 180) {
+    while (true) {
+      // Stop here
+    }
+  }
 }
